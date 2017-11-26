@@ -88,7 +88,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
 	if err != nil {
-		log.Printf("Error verifying creds: %+v")
+		log.Printf("Error verifying creds: %+v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -101,7 +101,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tweets, _, err := client.Timelines.HomeTimeline(homeTimelineParams)
 	if err != nil {
-		log.Printf("Error verifying creds: %+v")
+		log.Printf("Error getting tweets: %+v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
