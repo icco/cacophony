@@ -113,7 +113,23 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Tweet (https://twitter.com/statuses/%s): %+v", t.IDStr, t.Entities)
 		for _, u := range t.Entities.Urls {
 			log.Printf("URL: %+v", u.ExpandedURL)
+			err = models.SaveUrl(u.ExpandedURL, t.IDStr)
+			if err != nil {
+				log.Printf("Error saving url: %+v", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
+	}
+
+	urls, err := models.AllSavedUrls()
+	if err != nil {
+		log.Printf("Error getting urls: %+v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	for k, v := range urls {
+		log.Printf("Save URL %d: %+v", k, v)
 	}
 
 	w.Write([]byte(`"ok."`))

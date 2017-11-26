@@ -24,6 +24,11 @@ var (
       );
       `,
 		},
+		{
+			Version:     2,
+			Description: "Add unique index to link",
+			Script:      "CREATE UNIQUE INDEX link_idx ON saved_urls(link);",
+		},
 	}
 )
 

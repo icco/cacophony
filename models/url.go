@@ -1,11 +1,11 @@
 package models
 
 import (
+	"log"
 	"time"
 )
 
 type SavedUrl struct {
-	Id         int64
 	Link       string
 	TweetIds   []string
 	CreatedAt  time.Time
@@ -13,7 +13,7 @@ type SavedUrl struct {
 }
 
 func AllSavedUrls() ([]*SavedUrl, error) {
-	rows, err := db.Query("SELECT * FROM saved_urls")
+	rows, err := db.Query("SELECT link, tweet_ids, created_at, modified_at FROM saved_urls ORDER BY modified_at DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func AllSavedUrls() ([]*SavedUrl, error) {
 	urls := make([]*SavedUrl, 0)
 	for rows.Next() {
 		url := new(SavedUrl)
-		err := rows.Scan()
+		err := rows.Scan(&url.Link, &url.TweetIds, &url.CreatedAt, &url.ModifiedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -32,4 +32,19 @@ func AllSavedUrls() ([]*SavedUrl, error) {
 		return nil, err
 	}
 	return urls, nil
+}
+
+func SaveUrl(link string, tweetId string) error {
+	query := `
+  INSERT into saved_urls (link, tweet_ids, created_at, modified_at)
+  VALUES ($1, ARRAY [$2], transaction_timestamp(), transaction_timestamp())
+  ON CONFLICT(link) DO
+  UPDATE SET tweet_ids = saved_urls.tweet_ids || $2, modified_at = transaction_timestamp();
+  `
+	_, err := db.Exec(query, link, tweetId)
+	if err != nil {
+		log.Printf("Query errored: %+v, $1: %+v, $2: %+v", query, link, tweetId)
+	}
+
+	return err
 }
