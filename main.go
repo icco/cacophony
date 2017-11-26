@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -79,7 +80,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	// user timeline
 	userTimelineParams := &twitter.UserTimelineParams{ScreenName: "icco", Count: 2}
-	tweets, _, _ = client.Timelines.UserTimeline(userTimelineParams)
+	tweets, _, _ := client.Timelines.UserTimeline(userTimelineParams)
 	log.Printf("USER TIMELINE:\n%+v\n", tweets)
 
 	w.Write([]byte(`"ok."`))
