@@ -16,12 +16,12 @@ var (
 			Description: "Creating table saved_urls",
 			Script: `
       CREATE TABLE saved_urls (
-        id INT 		auto_increment,
+        id serial primary key,
         link text,
         tweet_ids text[],
         created_at timestamp with time zone,
-        modified_at timestamp with time zone,
-      ) CHARACTER SET=utf8;
+        modified_at timestamp with time zone
+      );
       `,
 		},
 	}

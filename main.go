@@ -11,6 +11,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/gorilla/handlers"
+	"github.com/icco/cacophony/models"
 )
 
 func main() {
@@ -18,6 +19,8 @@ func main() {
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
 	}
+
+	models.InitDB("postgres://localhost/cacophony?sslmode=disable")
 
 	server := http.NewServeMux()
 	server.HandleFunc("/", homeHandler)
