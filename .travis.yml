@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.9.x
+  - master
+before_script:
+  - go get github.com/golang/lint/golint
+script:
+  - go vet ./...
+  - golint
+  - go build .
