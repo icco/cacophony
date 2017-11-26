@@ -86,16 +86,29 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		SkipStatus:   twitter.Bool(true),
 		IncludeEmail: twitter.Bool(true),
 	}
-	user, _, _ := client.Accounts.VerifyCredentials(verifyParams)
-	log.Printf("User's ACCOUNT: %+v", user)
+	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
+	if err != nil {
+		log.Printf("Error verifying creds: %+v")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Printf("User: %+v", user.ScreenName)
 
 	// Home Timeline
 	homeTimelineParams := &twitter.HomeTimelineParams{
-		Count:     2,
+		Count:     10,
 		TweetMode: "extended",
 	}
-	tweets, _, _ := client.Timelines.HomeTimeline(homeTimelineParams)
-	log.Printf("User's HOME TIMELINE: %+v", tweets)
+	tweets, _, err := client.Timelines.HomeTimeline(homeTimelineParams)
+	if err != nil {
+		log.Printf("Error verifying creds: %+v")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for _, t := range tweets {
+		log.Printf("Tweet (https://twitter.com/statuses/%s): %+v", t.IDStr, t.Entities)
+	}
 
 	w.Write([]byte(`"ok."`))
 }
