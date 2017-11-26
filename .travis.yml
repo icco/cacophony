@@ -1,8 +1,7 @@
 language: go
 
 go:
-  - 1.9.x
-  - master
+  - 1.9
 before_script:
   - go get github.com/golang/lint/golint
 script:
