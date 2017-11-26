@@ -108,6 +108,9 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, t := range tweets {
 		log.Printf("Tweet (https://twitter.com/statuses/%s): %+v", t.IDStr, t.Entities)
+		for _, u := range t.Entities.Urls {
+			log.Printf("URL: %+v", u.ExpandedURL)
+		}
 	}
 
 	w.Write([]byte(`"ok."`))
