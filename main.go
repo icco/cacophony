@@ -30,12 +30,12 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, loggedRouter))
 }
 
-type HealthRespJson struct {
+type healthRespJSON struct {
 	Healthy string `json:"healthy"`
 }
 
 func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	resp := HealthRespJson{
+	resp := healthRespJSON{
 		Healthy: "true",
 	}
 
