@@ -4,19 +4,43 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/GuiaBolso/darwin"
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var (
+	db         *sql.DB
+	migrations = []darwin.Migration{
+		{
+			Version:     1,
+			Description: "Creating table saved_urls",
+			Script: `
+      CREATE TABLE saved_urls (
+        id INT 		auto_increment,
+        link text,
+        tweet_ids text[],
+        created_at timestamp with time zone,
+        modified_at timestamp with time zone,
+      ) CHARACTER SET=utf8;
+      `,
+		},
+	}
+)
 
 func InitDB(dataSourceName string) {
 	var err error
+
+	// Connect to Database
 	db, err = sql.Open("postgres", dataSourceName)
-	if err != nil {
+	if err = db.Ping(); err != nil {
 		log.Panic(err)
 	}
 
-	if err = db.Ping(); err != nil {
+	// Migrate
+	driver := darwin.NewGenericDriver(db, darwin.PostgresDialect{})
+	d := darwin.New(driver, migrations, nil)
+	err = d.Migrate()
+	if err != nil {
 		log.Panic(err)
 	}
 }
