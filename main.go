@@ -9,8 +9,8 @@ import (
 
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
+	"github.com/dghubble/oauth1"
 	"github.com/gorilla/handlers"
-	"golang.org/x/oauth2"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	js, err := json.Marshal(`{"hello": "world"}`)
+	js, err := json.Marshal("hello world.")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -61,27 +61,41 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func cronHandler(w http.ResponseWriter, r *http.Request) {
-	flags := flag.NewFlagSet("app-auth", flag.ExitOnError)
-	accessToken := flags.String("app-access-token", "", "Twitter Application Access Token")
+	flags := flag.NewFlagSet("user-auth", flag.ExitOnError)
+	consumerKey := flags.String("consumer-key", "", "Twitter Consumer Key")
+	consumerSecret := flags.String("consumer-secret", "", "Twitter Consumer Secret")
+	accessToken := flags.String("access-token", "", "Twitter Access Token")
+	accessSecret := flags.String("access-secret", "", "Twitter Access Secret")
 	flags.Parse(os.Args[1:])
 	flagutil.SetFlagsFromEnv(flags, "TWITTER")
 
-	if *accessToken == "" {
-		log.Fatal("Application Access Token required")
+	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
+		log.Fatal("Consumer key/secret and Access token/secret required")
 	}
 
-	config := &oauth2.Config{}
-	token := &oauth2.Token{AccessToken: *accessToken}
-	// OAuth2 http.Client will automatically authorize Requests
-	httpClient := config.Client(oauth2.NoContext, token)
+	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
+	token := oauth1.NewToken(*accessToken, *accessSecret)
+	// OAuth1 http.Client will automatically authorize Requests
+	httpClient := config.Client(oauth1.NoContext, token)
 
 	// Twitter client
 	client := twitter.NewClient(httpClient)
 
-	// user timeline
-	userTimelineParams := &twitter.UserTimelineParams{ScreenName: "icco", Count: 2}
-	tweets, _, _ := client.Timelines.UserTimeline(userTimelineParams)
-	log.Printf("USER TIMELINE:\n%+v\n", tweets)
+	// Verify Credentials
+	verifyParams := &twitter.AccountVerifyParams{
+		SkipStatus:   twitter.Bool(true),
+		IncludeEmail: twitter.Bool(true),
+	}
+	user, _, _ := client.Accounts.VerifyCredentials(verifyParams)
+	log.Printf("User's ACCOUNT: %+v", user)
+
+	// Home Timeline
+	homeTimelineParams := &twitter.HomeTimelineParams{
+		Count:     2,
+		TweetMode: "extended",
+	}
+	tweets, _, _ := client.Timelines.HomeTimeline(homeTimelineParams)
+	log.Printf("User's HOME TIMELINE: %+v", tweets)
 
 	w.Write([]byte(`"ok."`))
 }
