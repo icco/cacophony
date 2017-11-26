@@ -12,7 +12,7 @@ type SavedUrl struct {
 	ModifiedAt time.Time
 }
 
-func AllSavedUrls() ([]*SavedUrls, error) {
+func AllSavedUrls() ([]*SavedUrl, error) {
 	rows, err := db.Query("SELECT * FROM saved_urls")
 	if err != nil {
 		return nil, err
