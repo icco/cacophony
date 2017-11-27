@@ -3,9 +3,12 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
@@ -102,9 +105,20 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		Count:     10,
 		TweetMode: "extended",
 	}
-	tweets, _, err := client.Timelines.HomeTimeline(homeTimelineParams)
+	tweets, resp, err := client.Timelines.HomeTimeline(homeTimelineParams)
+	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
+		i, err := strconv.ParseInt(resp.Header.Get("X-Rate-Limit-Reset"), 10, 64)
+		if err != nil {
+			log.Printf("Error converting int: %+v", err)
+		}
+		tm := time.Unix(i, 0)
+		rtlimit := fmt.Errorf("Out of Rate Limit. Returns: %+v", tm)
+		http.Error(w, rtlimit.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	if err != nil {
-		log.Printf("Error getting tweets: %+v", err)
+		log.Printf("Error getting tweets: %+v. %+v", err, resp)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
