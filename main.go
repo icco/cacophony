@@ -92,9 +92,9 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		SkipStatus:   twitter.Bool(true),
 		IncludeEmail: twitter.Bool(true),
 	}
-	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
+	user, resp, err := client.Accounts.VerifyCredentials(verifyParams)
 	if err != nil {
-		log.Printf("Error verifying creds: %+v", err)
+		log.Printf("Error verifying creds: %+v. %+v", err, resp)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
