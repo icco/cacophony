@@ -102,7 +102,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Home Timeline
 	homeTimelineParams := &twitter.HomeTimelineParams{
-		Count:     10,
+		Count:     200,
 		TweetMode: "extended",
 	}
 	tweets, resp, err := client.Timelines.HomeTimeline(homeTimelineParams)
