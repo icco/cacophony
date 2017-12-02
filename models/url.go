@@ -3,6 +3,8 @@ package models
 import (
 	"log"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type SavedUrl struct {
@@ -13,7 +15,7 @@ type SavedUrl struct {
 }
 
 func AllSavedUrls() ([]*SavedUrl, error) {
-	rows, err := db.Query("SELECT link, created_at, modified_at FROM saved_urls ORDER BY modified_at DESC")
+	rows, err := db.Query("SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +24,7 @@ func AllSavedUrls() ([]*SavedUrl, error) {
 	urls := make([]*SavedUrl, 0)
 	for rows.Next() {
 		url := new(SavedUrl)
-		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt)
+		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIds))
 		if err != nil {
 			return nil, err
 		}
