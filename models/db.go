@@ -48,4 +48,6 @@ func InitDB(dataSourceName string) {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	log.Printf("Connected to %+v", dataSourceName)
 }

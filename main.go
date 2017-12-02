@@ -33,7 +33,7 @@ func main() {
 	server := http.NewServeMux()
 	server.HandleFunc("/", homeHandler)
 	server.HandleFunc("/cron", cronHandler)
-	server.HandleFunc("/_healthcheck.json", healthCheckHandler)
+	server.HandleFunc("/healthz", healthCheckHandler)
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, server)
 
