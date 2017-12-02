@@ -23,7 +23,12 @@ func main() {
 		port = fromEnv
 	}
 
-	models.InitDB("postgres://localhost/cacophony?sslmode=disable")
+	dbUrl := os.Getenv("DATABASE_URL")
+	if dbUrl == "" {
+		log.Panicf("DATABASE_URL is empty!")
+	}
+
+	models.InitDB(dbUrl)
 
 	server := http.NewServeMux()
 	server.HandleFunc("/", homeHandler)
