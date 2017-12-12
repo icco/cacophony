@@ -22,6 +22,7 @@ func main() {
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
 	}
+	log.Printf("Starting up on %s", port)
 
 	dbUrl := os.Getenv("DATABASE_URL")
 	if dbUrl == "" {
