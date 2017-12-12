@@ -28,10 +28,10 @@ func main() {
 	if dbUrl == "" {
 		log.Panicf("DATABASE_URL is empty!")
 	}
-	log.Printf("Got DB URL %s", port)
+	log.Printf("Got DB URL %s", dbUrl)
 
 	models.InitDB(dbUrl)
-	log.Printf("Got %s", port)
+	log.Printf("Got passed db line")
 
 	server := http.NewServeMux()
 	server.HandleFunc("/", homeHandler)
