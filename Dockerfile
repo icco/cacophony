@@ -6,5 +6,7 @@ COPY . .
 RUN go-wrapper download   # "go get -d -v ./..."
 RUN go-wrapper install    # "go install -v ./..."
 
+RUN ls -al
+
 EXPOSE 8080
 CMD ["go-wrapper", "run"] # ["app"]
