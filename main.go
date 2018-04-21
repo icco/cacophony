@@ -64,7 +64,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	urls, err := models.AllSavedUrls()
+	urls, err := models.SomeSavedUrls(100)
 	if err != nil {
 		log.Printf("Error getting urls: %+v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

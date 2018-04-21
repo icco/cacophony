@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -12,6 +13,28 @@ type SavedUrl struct {
 	TweetIds   []string
 	CreatedAt  time.Time
 	ModifiedAt time.Time
+}
+
+func SomeSavedUrls(limit int) ([]*SavedUrl, error) {
+	rows, err := db.Query(fmt.Sprintf("SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC LIMIT %d", limit))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	urls := make([]*SavedUrl, 0)
+	for rows.Next() {
+		url := new(SavedUrl)
+		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIds))
+		if err != nil {
+			return nil, err
+		}
+		urls = append(urls, url)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return urls, nil
 }
 
 func AllSavedUrls() ([]*SavedUrl, error) {
