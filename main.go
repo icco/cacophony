@@ -157,7 +157,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for k, v := range urls {
-		log.Printf("Save URL %d: %+v", k, v)
+		//log.Printf("Save URL %d: %+v", k, v)
 	}
 
 	w.Header().Set("Cache-Control", "no-cache")
