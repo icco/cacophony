@@ -150,14 +150,11 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	urls, err := models.AllSavedUrls()
+	_, err = models.AllSavedUrls()
 	if err != nil {
 		log.Printf("Error getting urls: %+v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-	for k, v := range urls {
-		//log.Printf("Save URL %d: %+v", k, v)
 	}
 
 	w.Header().Set("Cache-Control", "no-cache")
