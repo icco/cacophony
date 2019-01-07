@@ -24,12 +24,12 @@ func main() {
 	}
 	log.Debugf("Starting up on %s", port)
 
-	dbUrl := os.Getenv("DATABASE_URL")
-	if dbUrl == "" {
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
 		log.Fatalf("DATABASE_URL is empty!")
 	}
 
-	models.InitDB(dbUrl)
+	models.InitDB(dbURL)
 
 	server := http.NewServeMux()
 	server.HandleFunc("/", homeHandler)
@@ -130,7 +130,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		log.WithError(err).Error("Error getting tweets: %+v", resp)
+		log.WithError(err).Errorf("Error getting tweets: %+v", resp)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
