@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/GuiaBolso/darwin"
+
+	// Needed for database connection
 	_ "github.com/lib/pq"
 )
 
@@ -32,6 +34,7 @@ var (
 	}
 )
 
+// InitDB creates the database and migrates it to the correct version.
 func InitDB(dataSourceName string) {
 	var err error
 
