@@ -1,8 +1,19 @@
 language: go
 
 go:
-  - 1.9
+  - 1.11
+env:
+  global:
+    - GO111MODULE=on
+    - DATABASE_URL="postgres://postgres@localhost/travis_ci_test?sslmode=disable"
+dist: trusty
+sudo: false
+addons:
+  postgresql: 9.6
+services:
+  - postgresql
 before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
   - go get github.com/golang/lint/golint
 script:
   - go vet ./...
