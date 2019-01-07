@@ -1,10 +1,9 @@
-FROM golang:1.9
-
-WORKDIR /go/src/app
+FROM golang:1.11
+ENV GO111MODULE=on
+EXPOSE 8080
+WORKDIR /go/src/github.com/icco/cacophony
 COPY . .
 
-RUN go-wrapper download   # "go get -d -v ./..."
-RUN go-wrapper install    # "go install -v ./..."
+RUN go build -o /go/bin/server .
 
-EXPOSE 8080
-CMD ["go-wrapper", "run"] # ["app"]
+CMD ["/go/bin/server"]
