@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,34 +12,33 @@ import (
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	"github.com/gorilla/handlers"
 	"github.com/icco/cacophony/models"
 )
 
 func main() {
+	InitLogging()
+
 	port := "8080"
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
 	}
-	log.Printf("Starting up on %s", port)
+	log.Debugf("Starting up on %s", port)
 
 	dbUrl := os.Getenv("DATABASE_URL")
 	if dbUrl == "" {
-		log.Panicf("DATABASE_URL is empty!")
+		log.Fatalf("DATABASE_URL is empty!")
 	}
-	log.Printf("Got DB URL %s", dbUrl)
 
 	models.InitDB(dbUrl)
-	log.Printf("Got passed db line")
 
 	server := http.NewServeMux()
 	server.HandleFunc("/", homeHandler)
 	server.HandleFunc("/cron", cronHandler)
 	server.HandleFunc("/healthz", healthCheckHandler)
 
-	loggedRouter := handlers.LoggingHandler(os.Stdout, server)
+	loggedRouter := LoggingMiddleware()(server)
 
-	log.Printf("Server listening on port %s", port)
+	log.Debugf("Server listening on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, loggedRouter))
 }
 
@@ -66,7 +64,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	urls, err := models.SomeSavedUrls(100)
 	if err != nil {
-		log.Printf("Error getting urls: %+v", err)
+		log.WithError(err).Error("Error getting urls")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -108,11 +106,11 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	user, resp, err := client.Accounts.VerifyCredentials(verifyParams)
 	if err != nil {
-		log.Printf("Error verifying creds: %+v. %+v", err, resp)
+		log.WithError(err).Errorf("Error verifying creds: %+v", resp)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("User: %+v", user.ScreenName)
+	log.Debugf("User: %+v", user.ScreenName)
 
 	// Home Timeline
 	homeTimelineParams := &twitter.HomeTimelineParams{
@@ -123,7 +121,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
 		i, err := strconv.ParseInt(resp.Header.Get("X-Rate-Limit-Reset"), 10, 64)
 		if err != nil {
-			log.Printf("Error converting int: %+v", err)
+			log.WithError(err).Error("Error converting int")
 		}
 		tm := time.Unix(i, 0)
 		rtlimit := fmt.Errorf("Out of Rate Limit. Returns: %+v", tm)
@@ -132,18 +130,16 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		log.Printf("Error getting tweets: %+v. %+v", err, resp)
+		log.WithError(err).Error("Error getting tweets: %+v", resp)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	for _, t := range tweets {
-		//log.Printf("Tweet (https://twitter.com/statuses/%s): %+v", t.IDStr, t.Entities)
 		for _, u := range t.Entities.Urls {
-			//log.Printf("URL: %+v", u.ExpandedURL)
 			err = models.SaveUrl(u.ExpandedURL, t.IDStr)
 			if err != nil {
-				log.Printf("Error saving url: %+v", err)
+				log.WithError(err).Error("Error saving url")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -152,7 +148,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = models.AllSavedUrls()
 	if err != nil {
-		log.Printf("Error getting urls: %+v", err)
+		log.WithError(err).Error("Error getting urls")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
