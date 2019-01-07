@@ -8,24 +8,26 @@ import (
 	"github.com/lib/pq"
 )
 
-type SavedUrl struct {
+// SavedURL stores a single url seen in a tweet.
+type SavedURL struct {
 	Link       string
-	TweetIds   []string
+	TweetIDs   []string
 	CreatedAt  time.Time
 	ModifiedAt time.Time
 }
 
-func SomeSavedUrls(limit int) ([]*SavedUrl, error) {
+// SomeSavedURLs returns a subset of most recently seen urls.
+func SomeSavedURLs(limit int) ([]*SavedURL, error) {
 	rows, err := db.Query(fmt.Sprintf("SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC LIMIT %d", limit))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	urls := make([]*SavedUrl, 0)
+	urls := make([]*SavedURL, 0)
 	for rows.Next() {
-		url := new(SavedUrl)
-		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIds))
+		url := new(SavedURL)
+		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIDs))
 		if err != nil {
 			return nil, err
 		}
@@ -37,17 +39,18 @@ func SomeSavedUrls(limit int) ([]*SavedUrl, error) {
 	return urls, nil
 }
 
-func AllSavedUrls() ([]*SavedUrl, error) {
+// AllSavedURLs returns all of the urls ever seen.
+func AllSavedURLs() ([]*SavedURL, error) {
 	rows, err := db.Query("SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	urls := make([]*SavedUrl, 0)
+	urls := make([]*SavedURL, 0)
 	for rows.Next() {
-		url := new(SavedUrl)
-		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIds))
+		url := new(SavedURL)
+		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIDs))
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +62,8 @@ func AllSavedUrls() ([]*SavedUrl, error) {
 	return urls, nil
 }
 
-func SaveUrl(link string, tweetId string) error {
+// SaveURL does an upsert on a URL.
+func SaveURL(link string, tweetID string) error {
 	query := `
   INSERT into saved_urls (link, tweet_ids, created_at, modified_at)
   VALUES ($1, ARRAY [$2], transaction_timestamp(), transaction_timestamp())
@@ -67,9 +71,9 @@ func SaveUrl(link string, tweetId string) error {
   SET tweet_ids = saved_urls.tweet_ids || $2, modified_at = transaction_timestamp()
   WHERE NOT EXCLUDED.tweet_ids <@ saved_urls.tweet_ids;
   `
-	_, err := db.Exec(query, link, tweetId)
+	_, err := db.Exec(query, link, tweetID)
 	if err != nil {
-		log.Printf("Query errored: %+v, $1: %+v, $2: %+v", query, link, tweetId)
+		log.Printf("Query errored: %+v, $1: %+v, $2: %+v", query, link, tweetID)
 	}
 
 	return err

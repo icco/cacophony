@@ -62,7 +62,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	urls, err := models.SomeSavedUrls(100)
+	urls, err := models.SomeSavedURLs(100)
 	if err != nil {
 		log.WithError(err).Error("Error getting urls")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -137,7 +137,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, t := range tweets {
 		for _, u := range t.Entities.Urls {
-			err = models.SaveUrl(u.ExpandedURL, t.IDStr)
+			err = models.SaveURL(u.ExpandedURL, t.IDStr)
 			if err != nil {
 				log.WithError(err).Error("Error saving url")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -146,7 +146,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	_, err = models.AllSavedUrls()
+	_, err = models.AllSavedURLs()
 	if err != nil {
 		log.WithError(err).Error("Error getting urls")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
