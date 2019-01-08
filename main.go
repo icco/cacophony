@@ -13,11 +13,13 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/icco/cacophony/models"
+	"github.com/icco/cron/tweets"
+	sd "github.com/icco/logrus-stackdriver-formatter"
 )
 
-func main() {
-	InitLogging()
+var log = sd.InitLogging()
 
+func main() {
 	port := "8080"
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
@@ -36,7 +38,7 @@ func main() {
 	server.HandleFunc("/cron", cronHandler)
 	server.HandleFunc("/healthz", healthCheckHandler)
 
-	loggedRouter := LoggingMiddleware()(server)
+	loggedRouter := sd.LoggingMiddleware(log)(server)
 
 	log.Debugf("Server listening on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, loggedRouter))
@@ -62,7 +64,7 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	urls, err := models.SomeSavedURLs(100)
+	urls, err := models.SomeSavedURLs(r.Context(), 100)
 	if err != nil {
 		log.WithError(err).Error("Error getting urls")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -87,6 +89,8 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	flags.Parse(os.Args[1:])
 	flagutil.SetFlagsFromEnv(flags, "TWITTER")
 
+	ctx := r.Context()
+
 	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
 		log.Fatal("Consumer key/secret and Access token/secret required")
 	}
@@ -94,7 +98,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
 	token := oauth1.NewToken(*accessToken, *accessSecret)
 	// OAuth1 http.Client will automatically authorize Requests
-	httpClient := config.Client(oauth1.NoContext, token)
+	httpClient := config.Client(ctx, token)
 
 	// Twitter client
 	client := twitter.NewClient(httpClient)
@@ -117,7 +121,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		Count:     200,
 		TweetMode: "extended",
 	}
-	tweets, resp, err := client.Timelines.HomeTimeline(homeTimelineParams)
+	homeTweets, resp, err := client.Timelines.HomeTimeline(homeTimelineParams)
 	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
 		i, err := strconv.ParseInt(resp.Header.Get("X-Rate-Limit-Reset"), 10, 64)
 		if err != nil {
@@ -135,22 +139,18 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, t := range tweets {
+	for _, t := range homeTweets {
+		// Save tweet to DB via graphql
+		tweets.UploadTweet(ctx, log, os.Getenv("GQL_TOKEN"), t)
+
 		for _, u := range t.Entities.Urls {
-			err = models.SaveURL(u.ExpandedURL, t.IDStr)
+			err = models.SaveURL(ctx, u.ExpandedURL, t.IDStr)
 			if err != nil {
 				log.WithError(err).Error("Error saving url")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 		}
-	}
-
-	_, err = models.AllSavedURLs()
-	if err != nil {
-		log.WithError(err).Error("Error getting urls")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 
 	w.Header().Set("Cache-Control", "no-cache")
