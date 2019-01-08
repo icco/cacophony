@@ -2,9 +2,9 @@ package models
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/GuiaBolso/darwin"
+	sd "github.com/icco/logrus-stackdriver-formatter"
 
 	// Needed for database connection
 	_ "github.com/lib/pq"
@@ -12,6 +12,7 @@ import (
 
 var (
 	db         *sql.DB
+	log        = sd.InitLogging()
 	migrations = []darwin.Migration{
 		{
 			Version:     1,
