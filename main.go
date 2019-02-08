@@ -64,7 +64,18 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	urls, err := models.SomeSavedURLs(r.Context(), 100)
+	cntStr := r.URL.Query().Get("count")
+	cnt := 100
+	if cntStr != "" {
+		i, err := strconv.Atoi(cntStr)
+		if err != nil {
+			log.WithError(err).Error("Error parsing count")
+		} else {
+			cnt = i
+		}
+	}
+
+	urls, err := models.SomeSavedURLs(r.Context(), cnt)
 	if err != nil {
 		log.WithError(err).Error("Error getting urls")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
