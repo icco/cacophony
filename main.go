@@ -201,7 +201,10 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, t := range homeTweets {
 		// Save tweet to DB via graphql
-		c.UploadTweet(ctx, t)
+		err := c.UploadTweet(ctx, t)
+		if err != nil {
+			log.WithError(err).Error("problem uploading tweet")
+		}
 
 		for _, u := range t.Entities.Urls {
 			err = models.SaveURL(ctx, u.ExpandedURL, t.IDStr)
