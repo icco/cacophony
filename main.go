@@ -9,39 +9,83 @@ import (
 	"strconv"
 	"time"
 
+	"contrib.go.opencensus.io/exporter/stackdriver"
+	"contrib.go.opencensus.io/exporter/stackdriver/monitoredresource"
+	"contrib.go.opencensus.io/exporter/stackdriver/propagation"
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/icco/cacophony/models"
+	"github.com/icco/cron"
 	"github.com/icco/cron/tweets"
-	sd "github.com/icco/logrus-stackdriver-formatter"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
 )
-
-var log = sd.InitLogging()
 
 func main() {
 	port := "8080"
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
 	}
-	log.Debugf("Starting up on %s", port)
+	log.Printf("Starting up on http://localhost:%s", port)
 
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		log.Fatalf("DATABASE_URL is empty!")
 	}
 
+	if os.Getenv("ENABLE_STACKDRIVER") != "" {
+		labels := &stackdriver.Labels{}
+		labels.Set("app", "cron", "The name of the current app.")
+		sd, err := stackdriver.NewExporter(stackdriver.Options{
+			ProjectID:               "icco-cloud",
+			MonitoredResource:       monitoredresource.Autodetect(),
+			DefaultMonitoringLabels: labels,
+			DefaultTraceAttributes:  map[string]interface{}{"app": "cron"},
+		})
+
+		if err != nil {
+			log.WithError(err).Fatalf("failed to create the stackdriver exporter")
+		}
+		defer sd.Flush()
+
+		view.RegisterExporter(sd)
+		trace.RegisterExporter(sd)
+		trace.ApplyConfig(trace.Config{
+			DefaultSampler: trace.AlwaysSample(),
+		})
+	}
+
 	models.InitDB(dbURL)
 
-	server := http.NewServeMux()
-	server.HandleFunc("/", homeHandler)
-	server.HandleFunc("/cron", cronHandler)
-	server.HandleFunc("/healthz", healthCheckHandler)
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Recoverer)
+	r.Use(cron.LoggingMiddleware())
+	r.Get("/", homeHandler)
+	r.Get("/cron", cronHandler)
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte("ok."))
+		if err != nil {
+			log.WithError(err).Error("could not write response")
+		}
+	})
+	h := &ochttp.Handler{
+		Handler:     r,
+		Propagation: &propagation.HTTPFormat{},
+	}
+	if err := view.Register([]*view.View{
+		ochttp.ServerRequestCountView,
+		ochttp.ServerResponseCountByStatusCode,
+	}...); err != nil {
+		log.WithError(err).Fatal("Failed to register ochttp views")
+	}
 
-	loggedRouter := sd.LoggingMiddleware(log)(server)
-
-	log.Debugf("Server listening on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, loggedRouter))
+	log.Fatal(http.ListenAndServe(":"+port, h))
 }
 
 type healthRespJSON struct {
