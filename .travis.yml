@@ -1,9 +1,10 @@
 language: go
 
 go:
-  - 1.11
+  - 1.12
 env:
   global:
+    - GOPROXY="https://proxy.golang.org"
     - GO111MODULE=on
     - DATABASE_URL="postgres://postgres@localhost/travis_ci_test?sslmode=disable"
 dist: trusty
@@ -14,9 +15,8 @@ services:
   - postgresql
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
-  - go get github.com/golang/lint/golint
 script:
   - go vet ./...
-  - golint ./...
+  - go run golang.org/x/lint/golint ./...
   - go build .
   - go test -v ./...

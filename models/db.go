@@ -42,21 +42,21 @@ func InitDB(dataSourceName string) {
 	// Connect to Database
 	db, err = sql.Open("postgres", dataSourceName)
 	if err != nil {
-		log.Panic(err)
+		log.WithError(err).Panic("could not connect to DB")
 	}
 
 	if err = db.Ping(); err != nil {
-		log.Panic(err)
+		log.WithError(err).Panic("could not ping DB")
 	}
 
-	log.Printf("Connected to %+v", dataSourceName)
+	log.Debug("connected to DB")
 
 	// Migrate
 	driver := darwin.NewGenericDriver(db, darwin.PostgresDialect{})
 	d := darwin.New(driver, migrations, nil)
 	err = d.Migrate()
 	if err != nil {
-		log.Panic(err)
+		log.WithError(err).Panic("could not migrate database")
 	}
-	log.Printf("Database migration complete.")
+	log.Info("database migration complete")
 }
