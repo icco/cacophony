@@ -1,9 +1,10 @@
 language: go
 
 go:
-  - 1.11
+  - 1.12
 env:
   global:
+    - GOPROXY="https://proxy.golang.org"
     - GO111MODULE=on
     - DATABASE_URL="postgres://postgres@localhost/travis_ci_test?sslmode=disable"
 dist: trusty
