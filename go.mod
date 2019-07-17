@@ -3,7 +3,6 @@ module github.com/icco/cacophony
 go 1.12
 
 require (
-	cloud.google.com/go v0.41.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.2
 	github.com/GuiaBolso/darwin v0.0.0-20170210191649-86919dfcf808
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f
@@ -15,7 +14,6 @@ require (
 	github.com/icco/cron v0.0.0-20190713135914-660af3ee04e4
 	github.com/icco/logrus-stackdriver-formatter v0.3.0
 	github.com/lib/pq v1.2.0
-	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.4.2
 	go.opencensus.io v0.22.0
 )

@@ -18,7 +18,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/icco/cacophony/models"
-	"github.com/icco/cron"
 	"github.com/icco/cron/tweets"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
@@ -39,12 +38,12 @@ func main() {
 
 	if os.Getenv("ENABLE_STACKDRIVER") != "" {
 		labels := &stackdriver.Labels{}
-		labels.Set("app", "cron", "The name of the current app.")
+		labels.Set("app", "cacophony", "The name of the current app.")
 		sd, err := stackdriver.NewExporter(stackdriver.Options{
 			ProjectID:               "icco-cloud",
 			MonitoredResource:       monitoredresource.Autodetect(),
 			DefaultMonitoringLabels: labels,
-			DefaultTraceAttributes:  map[string]interface{}{"app": "cron"},
+			DefaultTraceAttributes:  map[string]interface{}{"app": "cacophony"},
 		})
 
 		if err != nil {
@@ -65,7 +64,7 @@ func main() {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
-	r.Use(cron.LoggingMiddleware())
+	r.Use(LoggingMiddleware())
 	r.Get("/", homeHandler)
 	r.Get("/cron", cronHandler)
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
