@@ -1,4 +1,4 @@
-FROM golang:1.11
+FROM golang:1.12
 ENV GO111MODULE=on
 EXPOSE 8080
 WORKDIR /go/src/github.com/icco/cacophony
