@@ -1,5 +1,9 @@
-FROM golang:1.12
-ENV GO111MODULE=on
+FROM golang:1.12-alpine
+
+ENV GOPROXY="https://proxy.golang.org"
+ENV GO111MODULE="on"
+ENV NAT_ENV="production"
+
 EXPOSE 8080
 WORKDIR /go/src/github.com/icco/cacophony
 COPY . .
