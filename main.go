@@ -25,6 +25,7 @@ import (
 )
 
 func main() {
+	log = InitLogging()
 	port := "8080"
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
