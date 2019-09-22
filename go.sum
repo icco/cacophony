@@ -263,6 +263,8 @@ github.com/icco/cron v0.0.0-20190110164727-e3d5d2c8e273/go.mod h1:rFBnlYHrnQWD9v
 github.com/icco/cron v0.0.0-20190121032237-b4835d3918f3/go.mod h1:rFBnlYHrnQWD9v6h6lB/zuObRT87O4oV8Kka1elLlsg=
 github.com/icco/cron v0.0.0-20190922152132-1524c1e5ac75 h1:PjqSj/CX34Ihe5KiGCBMCv0XxWMJRIdwOrclxzWRKhc=
 github.com/icco/cron v0.0.0-20190922152132-1524c1e5ac75/go.mod h1:H7bYx8g/9S6ORMFnle5Uy0r7VgwDTfphPBL4r01kUMs=
+github.com/icco/cron v0.0.0-20190922165340-7a5656eadf80 h1:lGfWiPy95IKuiFou7BL4iYdGvYTYlLEiQyJEFFLwdzk=
+github.com/icco/cron v0.0.0-20190922165340-7a5656eadf80/go.mod h1:rYp/vGl92P/ZyqPWUg4rUmL3fmmFCaJAQFKGLei/+WA=
 github.com/icco/graphql v0.0.0-20190108160603-dd363c3e195d/go.mod h1:dYlQZz+4/r45sTx8eyjALOc2cQYssNaReUwPZRXIJ8I=
 github.com/icco/graphql v0.0.0-20190109022133-390239061cdf/go.mod h1:fs6UOuDKtjYiqGx8ox+4BxH9Ic2iXhi4vpK+naVK4MM=
 github.com/icco/graphql v0.0.0-20190203211859-7ccb702358d8/go.mod h1:B58lbu8IgvLE1oi7wtyOg0ixiPe/9l+aBhA8pRAas2A=
