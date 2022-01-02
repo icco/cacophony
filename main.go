@@ -9,47 +9,48 @@ import (
 	"strconv"
 	"time"
 
-	"contrib.go.opencensus.io/exporter/stackdriver"
-	"contrib.go.opencensus.io/exporter/stackdriver/monitoredresource"
-	"contrib.go.opencensus.io/exporter/stackdriver/propagation"
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/icco/cacophony/models"
 	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
+	"github.com/icco/gutil/logging"
+	"go.uber.org/zap"
+)
+
+var (
+	service = "cacophony"
+	project = "icco-cloud"
+	log     = logging.Must(logging.NewLogger(service))
 )
 
 func main() {
-	log = InitLogging()
 	port := "8080"
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
 	}
-	log.Printf("Starting up on http://localhost:%s", port)
+	log.Infow("Starting up", "host", fmt.Sprintf("http://localhost:%s", port))
 
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Fatalf("DATABASE_URL is empty!")
+		log.Fatal("DATABASE_URL is empty!")
 	}
 
 	if os.Getenv("ENABLE_STACKDRIVER") != "" {
 		labels := &stackdriver.Labels{}
-		labels.Set("app", "cacophony", "The name of the current app.")
+		labels.Set("app", service, "The name of the current app.")
 		sd, err := stackdriver.NewExporter(stackdriver.Options{
-			ProjectID:               "icco-cloud",
+			ProjectID:               project,
 			MonitoredResource:       monitoredresource.Autodetect(),
 			DefaultMonitoringLabels: labels,
-			DefaultTraceAttributes:  map[string]interface{}{"app": "cacophony"},
+			DefaultTraceAttributes:  map[string]interface{}{"app": service},
 		})
 
 		if err != nil {
-			log.WithError(err).Fatalf("failed to create the stackdriver exporter")
+			log.Fatalw("failed to create the stackdriver exporter", zap.Error(err))
 		}
 		defer sd.Flush()
 
@@ -63,16 +64,15 @@ func main() {
 	models.InitDB(dbURL)
 
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Recoverer)
-	r.Use(LoggingMiddleware())
+	r.Use(logging.Middleware(log.Desugar(), project))
+
 	r.Get("/", homeHandler)
 	r.Get("/cron", cronHandler)
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("ok."))
 		if err != nil {
-			log.WithError(err).Error("could not write response")
+			log.Errorw("could not write response", zap.Error(err))
 		}
 	})
 	h := &ochttp.Handler{
@@ -83,7 +83,7 @@ func main() {
 		ochttp.ServerRequestCountView,
 		ochttp.ServerResponseCountByStatusCode,
 	}...); err != nil {
-		log.WithError(err).Fatal("Failed to register ochttp views")
+		log.Fatalw("Failed to register ochttp views", zap.Error(err))
 	}
 
 	log.Fatal(http.ListenAndServe(":"+port, h))
@@ -114,7 +114,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if cntStr != "" {
 		i, err := strconv.Atoi(cntStr)
 		if err != nil {
-			log.WithError(err).Error("Error parsing count")
+			log.Errorw("Error parsing count", zap.Error(err))
 		} else {
 			cnt = i
 		}
@@ -122,7 +122,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	urls, err := models.SomeSavedURLs(r.Context(), cnt)
 	if err != nil {
-		log.WithError(err).Error("Error getting urls")
+		log.Errorw("Error getting urls", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -166,7 +166,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	user, resp, err := client.Accounts.VerifyCredentials(verifyParams)
 	if err != nil {
-		log.WithError(err).Errorf("Error verifying creds: %+v", resp)
+		log.Errorw("Error verifying creds", "response", resp, zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -181,7 +181,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
 		i, err := strconv.ParseInt(resp.Header.Get("X-Rate-Limit-Reset"), 10, 64)
 		if err != nil {
-			log.WithError(err).Error("Error converting int")
+			log.Errorw("Error converting int", zap.Error(err))
 		}
 		tm := time.Unix(i, 0)
 		rtlimit := fmt.Errorf("Out of Rate Limit. Returns: %+v", tm)
@@ -190,7 +190,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		log.WithError(err).Errorf("Error getting tweets: %+v", resp)
+		log.Errorw("Error getting tweets", "response", resp, zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -206,13 +206,13 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		// Save tweet to DB via graphql
 		err := c.UploadTweet(ctx, t)
 		if err != nil {
-			log.WithError(err).Error("problem uploading tweet")
+			log.Errorw("problem uploading tweet", zap.Error(err))
 		}
 
 		for _, u := range t.Entities.Urls {
 			err = models.SaveURL(ctx, u.ExpandedURL, t.IDStr)
 			if err != nil {
-				log.WithError(err).Error("Error saving url")
+				log.Errorw("Error saving url", zap.Error(err))
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
