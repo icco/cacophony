@@ -23,7 +23,6 @@ import (
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
-	"go.opencensus.io/trace/propagation"
 	"go.uber.org/zap"
 )
 
@@ -82,8 +81,7 @@ func main() {
 		}
 	})
 	h := &ochttp.Handler{
-		Handler:     r,
-		Propagation: &propagation.HTTPFormat{},
+		Handler: r,
 	}
 	if err := view.Register([]*view.View{
 		ochttp.ServerRequestCountView,
