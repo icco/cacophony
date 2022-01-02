@@ -24,11 +24,10 @@ func SomeSavedURLs(ctx context.Context, limit int) ([]*SavedURL, error) {
 	}
 	defer rows.Close()
 
-	urls := make([]*SavedURL, 0)
+	var urls []*SavedURL
 	for rows.Next() {
 		url := new(SavedURL)
-		err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIDs))
-		if err != nil {
+		if err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIDs)); err != nil {
 			return nil, err
 		}
 		urls = append(urls, url)
