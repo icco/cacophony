@@ -4,7 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/GuiaBolso/darwin"
-	sd "github.com/icco/logrus-stackdriver-formatter"
+	"github.com/icco/gutil/logging"
+	"go.uber.org/zap"
 
 	// Needed for database connection
 	_ "github.com/lib/pq"
@@ -12,7 +13,7 @@ import (
 
 var (
 	db         *sql.DB
-	log        = sd.InitLogging()
+	log        = logging.Must(logging.NewLogger("cacophony"))
 	migrations = []darwin.Migration{
 		{
 			Version:     1,
@@ -37,16 +38,14 @@ var (
 
 // InitDB creates the database and migrates it to the correct version.
 func InitDB(dataSourceName string) {
-	var err error
-
 	// Connect to Database
-	db, err = sql.Open("postgres", dataSourceName)
+	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
-		log.WithError(err).Panic("could not connect to DB")
+		log.Panicw("could not connect to DB", zap.Error(err))
 	}
 
-	if err = db.Ping(); err != nil {
-		log.WithError(err).Panic("could not ping DB")
+	if err := db.Ping(); err != nil {
+		log.Panicw("could not ping DB", zap.Error(err))
 	}
 
 	log.Debug("connected to DB")
@@ -54,9 +53,9 @@ func InitDB(dataSourceName string) {
 	// Migrate
 	driver := darwin.NewGenericDriver(db, darwin.PostgresDialect{})
 	d := darwin.New(driver, migrations, nil)
-	err = d.Migrate()
-	if err != nil {
-		log.WithError(err).Panic("could not migrate database")
+
+	if err := d.Migrate(); err != nil {
+		log.Panicw("could not migrate database", zap.Error(err))
 	}
 	log.Info("database migration complete")
 }
