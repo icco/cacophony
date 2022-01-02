@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"contrib.go.opencensus.io/exporter/stackdriver"
+	"contrib.go.opencensus.io/exporter/stackdriver/monitoredresource"
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
@@ -18,6 +20,10 @@ import (
 	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
 	"github.com/icco/gutil/logging"
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
+	"go.opencensus.io/trace/propagation"
 	"go.uber.org/zap"
 )
 
