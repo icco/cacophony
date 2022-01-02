@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 // SavedURL stores a single url seen in a tweet.
@@ -72,7 +73,7 @@ func SaveURL(ctx context.Context, link string, tweetID string) error {
   `
 	_, err := db.ExecContext(ctx, query, link, tweetID)
 	if err != nil {
-		log.Printf("Query errored: %+v, $1: %+v, $2: %+v", query, link, tweetID)
+		log.Infow("Query errored", "query", query, "link", link, "tweet", tweetID, zap.Error(err))
 	}
 
 	return err

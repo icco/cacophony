@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - 1.12
+  - 1.17
 env:
   global:
     - GOPROXY="https://proxy.golang.org"
@@ -18,5 +18,7 @@ before_script:
 script:
   - go vet ./...
   - go run golang.org/x/lint/golint ./...
+  - go install honnef.co/go/tools/cmd/staticcheck@latest
+  - staticcheck -go 1.17 ./...
   - go build .
   - go test -v ./...
