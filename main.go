@@ -18,6 +18,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/icco/cacophony/models"
+	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/stats/view"
@@ -195,7 +196,9 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := tweets.Twitter{
-		Log:          log,
+		Config: shared.Config{
+			Log: log,
+		},
 		GraphQLToken: os.Getenv("GQL_TOKEN"),
 	}
 
