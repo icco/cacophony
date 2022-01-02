@@ -93,25 +93,6 @@ func main() {
 	log.Fatal(http.ListenAndServe(":"+port, h))
 }
 
-type healthRespJSON struct {
-	Healthy string `json:"healthy"`
-}
-
-func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	resp := healthRespJSON{
-		Healthy: "true",
-	}
-
-	js, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-}
-
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	cntStr := r.URL.Query().Get("count")
 	cnt := 100
@@ -188,7 +169,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 			log.Errorw("Error converting int", zap.Error(err))
 		}
 		tm := time.Unix(i, 0)
-		rtlimit := fmt.Errorf("Out of Rate Limit. Returns: %+v", tm)
+		rtlimit := fmt.Errorf("out of Rate Limit. Returns: %+v", tm)
 		http.Error(w, rtlimit.Error(), http.StatusInternalServerError)
 		return
 	}
