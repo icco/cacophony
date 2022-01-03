@@ -39,7 +39,7 @@ var (
 // InitDB creates the database and migrates it to the correct version.
 func InitDB(dataSourceName string) {
 	// Connect to Database
-	db, err := sql.Open("postgres", dataSourceName)
+	dbConn, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
 		log.Panicw("could not connect to DB", zap.Error(err))
 	}
@@ -49,6 +49,7 @@ func InitDB(dataSourceName string) {
 	}
 
 	log.Debug("connected to DB")
+	db = dbConn
 
 	// Migrate
 	driver := darwin.NewGenericDriver(db, darwin.PostgresDialect{})
