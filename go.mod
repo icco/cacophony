@@ -10,8 +10,8 @@ require (
 	github.com/dghubble/go-twitter v0.0.0-20211115160449-93a8679adecb
 	github.com/dghubble/oauth1 v0.7.0
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/icco/cron v0.0.0-20211230162635-cd56473cca74
-	github.com/icco/graphql v0.0.0-20211230231802-e5286a6aaec9 // indirect
+	github.com/icco/cron v0.0.0-20220103030926-f791d471355f
+	github.com/icco/graphql v0.0.0-20220103024659-be571ac776e6 // indirect
 	github.com/icco/gutil v0.0.0-20211212224553-1d468206bb48
 	github.com/lib/pq v1.10.4
 	go.opencensus.io v0.23.0
