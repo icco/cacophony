@@ -1,3 +1,3 @@
 module github.com/icco/cacophony
 
-go 1.17
+go 1.16
