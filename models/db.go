@@ -43,13 +43,13 @@ func InitDB(dataSourceName string) {
 	if err != nil {
 		log.Panicw("could not connect to DB", zap.Error(err))
 	}
+	db = dbConn
 
 	if err := db.Ping(); err != nil {
 		log.Panicw("could not ping DB", zap.Error(err))
 	}
 
 	log.Debug("connected to DB")
-	db = dbConn
 
 	// Migrate
 	driver := darwin.NewGenericDriver(db, darwin.PostgresDialect{})
