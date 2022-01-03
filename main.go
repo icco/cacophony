@@ -111,6 +111,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	js, err := json.Marshal(urls)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
