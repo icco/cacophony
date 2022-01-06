@@ -113,8 +113,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	enc := json.NewEncoder(w)
-	if enc.Write(urls); err != nil {
+	if err := json.NewEncoder(w).Encode(urls); err != nil {
 		log.Errorw("Error encoding json", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
