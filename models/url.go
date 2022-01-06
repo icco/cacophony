@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/lib/pq"
@@ -18,8 +19,10 @@ type SavedURL struct {
 
 // SomeSavedURLs returns a subset of most recently seen urls.
 func SomeSavedURLs(ctx context.Context, limit int) ([]*SavedURL, error) {
-	rows, err := db.QueryContext(ctx, "SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC LIMIT $1", limit)
+	query := "SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC LIMIT $1"
+	rows, err := db.QueryContext(ctx, query, limit)
 	if err != nil {
+		log.Errorw("query errored", "query", query, "limit", limit, zap.Error(err))
 		return nil, err
 	}
 	defer rows.Close()
@@ -28,20 +31,22 @@ func SomeSavedURLs(ctx context.Context, limit int) ([]*SavedURL, error) {
 	for rows.Next() {
 		url := new(SavedURL)
 		if err := rows.Scan(&url.Link, &url.CreatedAt, &url.ModifiedAt, pq.Array(&url.TweetIDs)); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 		urls = append(urls, url)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get some saved urls: %w", err)
 	}
 	return urls, nil
 }
 
 // AllSavedURLs returns all of the urls ever seen.
 func AllSavedURLs(ctx context.Context) ([]*SavedURL, error) {
-	rows, err := db.QueryContext(ctx, "SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC")
+	query := "SELECT link, created_at, modified_at, tweet_ids FROM saved_urls ORDER BY modified_at DESC"
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
+		log.Errorw("query errored", "query", query, zap.Error(err))
 		return nil, err
 	}
 	defer rows.Close()
@@ -56,7 +61,7 @@ func AllSavedURLs(ctx context.Context) ([]*SavedURL, error) {
 		urls = append(urls, url)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get all saved urls: %w", err)
 	}
 	return urls, nil
 }
@@ -68,12 +73,11 @@ func SaveURL(ctx context.Context, link string, tweetID string) error {
   VALUES ($1, ARRAY [$2], transaction_timestamp(), transaction_timestamp())
   ON CONFLICT(link) DO UPDATE
   SET tweet_ids = saved_urls.tweet_ids || $2, modified_at = transaction_timestamp()
-  WHERE NOT EXCLUDED.tweet_ids <@ saved_urls.tweet_ids;
-  `
-	_, err := db.ExecContext(ctx, query, link, tweetID)
-	if err != nil {
-		log.Infow("Query errored", "query", query, "link", link, "tweet", tweetID, zap.Error(err))
+  WHERE NOT EXCLUDED.tweet_ids <@ saved_urls.tweet_ids;`
+	if _, err := db.ExecContext(ctx, query, link, tweetID); err != nil {
+		log.Errorw("insert query errored", "query", query, "link", link, "tweet", tweetID, zap.Error(err))
+		return err
 	}
 
-	return err
+	return nil
 }
