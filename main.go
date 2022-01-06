@@ -112,14 +112,14 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	js, err := json.Marshal(urls)
-	if err != nil {
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
+	if enc.Write(urls); err != nil {
+		log.Errorw("Error encoding json", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	return
 }
 
 func cronHandler(w http.ResponseWriter, r *http.Request) {
