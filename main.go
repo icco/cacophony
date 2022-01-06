@@ -159,8 +159,8 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Home Timeline
 	homeTimelineParams := &twitter.HomeTimelineParams{
-		Count:     200,
-		TweetMode: "extended",
+		Count:           200,
+		IncludeEntities: twitter.Bool(true),
 	}
 	homeTweets, resp, err := client.Timelines.HomeTimeline(homeTimelineParams)
 	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
@@ -189,8 +189,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, t := range homeTweets {
 		// Save tweet to DB via graphql
-		err := c.UploadTweet(ctx, t)
-		if err != nil {
+		if err := c.UploadTweet(ctx, t); err != nil {
 			log.Errorw("problem uploading tweet", zap.Error(err))
 		}
 
