@@ -117,8 +117,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		log.Errorw("Error encoding json", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	return
 }
 
 func cronHandler(w http.ResponseWriter, r *http.Request) {
