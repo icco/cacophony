@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -9,8 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"contrib.go.opencensus.io/exporter/stackdriver"
-	"contrib.go.opencensus.io/exporter/stackdriver/monitoredresource"
 	"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
@@ -20,9 +19,7 @@ import (
 	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
 	"github.com/icco/gutil/logging"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
+	"github.com/icco/gutil/otel"
 	"go.uber.org/zap"
 )
 
@@ -44,31 +41,15 @@ func main() {
 		log.Fatal("DATABASE_URL is empty!")
 	}
 
-	if os.Getenv("ENABLE_STACKDRIVER") != "" {
-		labels := &stackdriver.Labels{}
-		labels.Set("app", service, "The name of the current app.")
-		sd, err := stackdriver.NewExporter(stackdriver.Options{
-			ProjectID:               project,
-			MonitoredResource:       monitoredresource.Autodetect(),
-			DefaultMonitoringLabels: labels,
-			DefaultTraceAttributes:  map[string]interface{}{"app": service},
-		})
-
-		if err != nil {
-			log.Fatalw("failed to create the stackdriver exporter", zap.Error(err))
-		}
-		defer sd.Flush()
-
-		view.RegisterExporter(sd)
-		trace.RegisterExporter(sd)
-		trace.ApplyConfig(trace.Config{
-			DefaultSampler: trace.AlwaysSample(),
-		})
+	ctx := context.Background()
+	if err := lib.UpdateReportsBQSchema(ctx, *project, *dataset, *rTable); err != nil {
+		log.Errorw("report table update", zap.Error(err))
 	}
 
 	models.InitDB(dbURL)
 
 	r := chi.NewRouter()
+	r.Use(otel.Middleware)
 	r.Use(middleware.RealIP)
 	r.Use(logging.Middleware(log.Desugar(), project))
 
@@ -80,17 +61,8 @@ func main() {
 			log.Errorw("could not write response", zap.Error(err))
 		}
 	})
-	h := &ochttp.Handler{
-		Handler: r,
-	}
-	if err := view.Register([]*view.View{
-		ochttp.ServerRequestCountView,
-		ochttp.ServerResponseCountByStatusCode,
-	}...); err != nil {
-		log.Fatalw("Failed to register ochttp views", zap.Error(err))
-	}
 
-	log.Fatal(http.ListenAndServe(":"+port, h))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
