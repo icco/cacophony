@@ -42,8 +42,8 @@ func main() {
 	}
 
 	ctx := context.Background()
-	if err := lib.UpdateReportsBQSchema(ctx, *project, *dataset, *rTable); err != nil {
-		log.Errorw("report table update", zap.Error(err))
+	if err := otel.Init(ctx, log, project, service); err != nil {
+		log.Errorw("could not init opentelemetry", zap.Error(err))
 	}
 
 	models.InitDB(dbURL)
