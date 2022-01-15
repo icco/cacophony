@@ -9,7 +9,7 @@ require (
 	github.com/dghubble/oauth1 v0.7.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/icco/cron v0.0.0-20220115161705-a634ede5f7bd
-	github.com/icco/gutil v0.0.0-20220115170613-a57da700978e
+	github.com/icco/gutil v0.0.0-20220115171937-06fb917087d7
 	github.com/lib/pq v1.10.4
 	go.uber.org/zap v1.20.0
 )
