@@ -8,7 +8,7 @@ require (
 	github.com/dghubble/go-twitter v0.0.0-20211115160449-93a8679adecb
 	github.com/dghubble/oauth1 v0.7.1
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/icco/cron v0.0.0-20220115161705-a634ede5f7bd
+	github.com/icco/cron v0.0.0-20220115171043-6e902a34c009
 	github.com/icco/gutil v0.0.0-20220115171937-06fb917087d7
 	github.com/lib/pq v1.10.4
 	go.uber.org/zap v1.20.0
@@ -28,7 +28,6 @@ require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/dghubble/sling v1.4.0 // indirect
-	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/go-logr/logr v1.2.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -38,7 +37,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/icco/graphql v0.0.0-20220115161852-1b88449db525 // indirect
+	github.com/icco/graphql v0.0.0-20220115171111-ed4369d8ed92 // indirect
 	github.com/icco/zapdriver v1.4.0 // indirect
 	github.com/imgix/imgix-go/v2 v2.0.3 // indirect
 	github.com/machinebox/graphql v0.2.2 // indirect
