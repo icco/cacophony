@@ -8,7 +8,7 @@ require (
 	github.com/dghubble/go-twitter v0.0.0-20211115160449-93a8679adecb
 	github.com/dghubble/oauth1 v0.7.1
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/icco/cron v0.0.0-20220109030225-2ad17a4c940e
+	github.com/icco/cron v0.0.0-20220115161705-a634ede5f7bd
 	github.com/icco/gutil v0.0.0-20220115163816-b7b82159b0b6
 	github.com/lib/pq v1.10.4
 	go.uber.org/zap v1.20.0
@@ -21,9 +21,10 @@ require (
 	cloud.google.com/go/monitoring v1.2.0 // indirect
 	cloud.google.com/go/storage v1.18.2 // indirect
 	cloud.google.com/go/trace v1.0.0 // indirect
-	github.com/99designs/gqlgen v0.14.0 // indirect
+	github.com/99designs/gqlgen v0.15.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v1.0.0-RC1.0.20220111155622-771af0772772 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.1-0.20220111155622-771af0772772 // indirect
+	github.com/XSAM/otelsql v0.10.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.2 // indirect
 	github.com/dghubble/sling v1.4.0 // indirect
@@ -37,11 +38,10 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/icco/graphql v0.0.0-20220111135130-446f18898dfe // indirect
+	github.com/icco/graphql v0.0.0-20220115161852-1b88449db525 // indirect
 	github.com/icco/zapdriver v1.4.0 // indirect
 	github.com/imgix/imgix-go/v2 v2.0.3 // indirect
 	github.com/machinebox/graphql v0.2.2 // indirect
-	github.com/opencensus-integrations/ocsql v0.1.7 // indirect
 	github.com/paulmach/orb v0.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
