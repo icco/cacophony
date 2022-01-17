@@ -8,7 +8,7 @@ require (
 	github.com/dghubble/go-twitter v0.0.0-20211115160449-93a8679adecb
 	github.com/dghubble/oauth1 v0.7.1
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/icco/cron v0.0.0-20220115171043-6e902a34c009
+	github.com/icco/cron v0.0.0-20220115172744-4cdb7cd03ec4
 	github.com/icco/gutil v0.0.0-20220117013958-c851cb44991d
 	github.com/lib/pq v1.10.4
 	go.uber.org/zap v1.20.0
@@ -21,7 +21,7 @@ require (
 	cloud.google.com/go/monitoring v1.2.0 // indirect
 	cloud.google.com/go/storage v1.18.2 // indirect
 	cloud.google.com/go/trace v1.0.0 // indirect
-	github.com/99designs/gqlgen v0.15.0 // indirect
+	github.com/99designs/gqlgen v0.15.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v1.0.0-RC1.0.20220111155622-771af0772772 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.0.1-0.20220111155622-771af0772772 // indirect
 	github.com/XSAM/otelsql v0.10.0 // indirect
@@ -37,7 +37,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
-	github.com/icco/graphql v0.0.0-20220115171111-ed4369d8ed92 // indirect
+	github.com/icco/graphql v0.0.0-20220115172806-f561f722370d // indirect
 	github.com/icco/zapdriver v1.4.0 // indirect
 	github.com/imgix/imgix-go/v2 v2.0.3 // indirect
 	github.com/machinebox/graphql v0.2.2 // indirect
