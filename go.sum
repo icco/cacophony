@@ -247,8 +247,6 @@ github.com/icco/cron v0.0.0-20220124021308-d0c8dab398a9 h1:rhVHQZEadthjqsNXlFO9x
 github.com/icco/cron v0.0.0-20220124021308-d0c8dab398a9/go.mod h1:UUyS5uDs4WgXarY3U9DYrvAdUL8p4kCvpOeOv4ngAGo=
 github.com/icco/graphql v0.0.0-20220124024000-2ceaa0785683 h1:AFIy0seh5CvG6xkwZPBcgZfF2YCsixiUEmpOztYzZsY=
 github.com/icco/graphql v0.0.0-20220124024000-2ceaa0785683/go.mod h1:bQEsy9jxpWedUnDoJYGlBcyOyHw1KN4oXod5Z3DcDXM=
-github.com/icco/gutil v0.0.0-20220220010526-7c82f1ebf02d h1:0rfG17MhZkdsy5CzuOUU6NdB0CZH56Wh6axFD3K55e0=
-github.com/icco/gutil v0.0.0-20220220010526-7c82f1ebf02d/go.mod h1:Xc7MNR9CYQQS0qIRgqtTzbj81E8Sr7/46mnSO+jvoTM=
 github.com/icco/gutil v0.0.0-20220221170217-9aa326c389ec h1:RkTO2KddsDjcaJ8vGsp+L6wFsKXvlQrf7QEco45jIdE=
 github.com/icco/gutil v0.0.0-20220221170217-9aa326c389ec/go.mod h1:Xc7MNR9CYQQS0qIRgqtTzbj81E8Sr7/46mnSO+jvoTM=
 github.com/icco/zapdriver v1.4.0 h1:ACpofOtnSJT9eywNOoTuEhzo7YtFUGCc4xBXYFWYMkI=
