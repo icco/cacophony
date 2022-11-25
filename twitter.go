@@ -86,8 +86,7 @@ func twitterCronWorker(ctx context.Context) error {
 				return fmt.Errorf("Error saving url: %w", err)
 			}
 		}
-
-		return nil
 	}
 
+	return nil
 }

@@ -88,7 +88,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if err := twitterCronWorker(ctx); err != nil {
-		log.Errorw("Error getting tweets", "response", resp, zap.Error(err))
+		log.Errorw("Error getting tweets", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
