@@ -5,8 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/coreos/pkg/flagutil"
 	//lint:ignore SA1019 deprecated and I don't care
