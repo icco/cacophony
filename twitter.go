@@ -26,7 +26,7 @@ func twitterCronWorker(ctx context.Context) error {
 	flagutil.SetFlagsFromEnv(flags, "TWITTER")
 
 	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
-		return fmt.Errorf("Consumer key/secret and Access token/secret required")
+		return fmt.Errorf("consumer key/secret and Access token/secret required")
 	}
 
 	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
@@ -60,7 +60,7 @@ func twitterCronWorker(ctx context.Context) error {
 			return err
 		}
 		tm := time.Unix(i, 0)
-		return fmt.Errorf("out of Rate Limit. Returns: %+v", tm)
+		return fmt.Errorf("out of Rate Limit")
 	}
 
 	if err != nil {
@@ -83,7 +83,7 @@ func twitterCronWorker(ctx context.Context) error {
 		for _, u := range t.Entities.Urls {
 			err = models.SaveURL(ctx, u.ExpandedURL, t.IDStr)
 			if err != nil {
-				return fmt.Errorf("Error saving url: %w", err)
+				return fmt.Errorf("error saving url: %w", err)
 			}
 		}
 	}
