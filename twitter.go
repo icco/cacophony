@@ -42,7 +42,7 @@ func twitterCronWorker(ctx context.Context) error {
 		SkipStatus:   twitter.Bool(true),
 		IncludeEmail: twitter.Bool(true),
 	}
-	user, resp, err := client.Accounts.VerifyCredentials(verifyParams)
+	user, _, err := client.Accounts.VerifyCredentials(verifyParams)
 	if err != nil {
 		return err
 	}
