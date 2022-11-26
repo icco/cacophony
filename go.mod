@@ -11,6 +11,7 @@ require (
 	github.com/icco/cron v0.0.0-20221126044951-4666e5198a71
 	github.com/icco/gutil v0.0.0-20221125220839-f4ca1629c04f
 	github.com/lib/pq v1.10.7
+	github.com/mattn/go-mastodon v0.0.6
 	go.uber.org/zap v1.23.0
 )
 
@@ -42,6 +43,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/icco/graphql v0.0.0-20221126004311-982f180992b6 // indirect
 	github.com/icco/zapdriver v1.4.0 // indirect
 	github.com/imgix/imgix-go/v2 v2.0.3 // indirect
@@ -50,6 +52,7 @@ require (
 	github.com/paulmach/orb v0.7.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.1 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.4 // indirect

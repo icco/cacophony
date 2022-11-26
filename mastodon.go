@@ -19,9 +19,9 @@ func mastodonCronWorker(ctx context.Context) error {
 	flagutil.SetFlagsFromEnv(flags, "MASTODON")
 
 	c := mastodon.NewClient(&mastodon.Config{
-		Server:       server,
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
+		Server:       *server,
+		ClientID:     *clientID,
+		ClientSecret: *clientSecret,
 	})
 
 	if err := c.Authenticate(ctx, "your-email", "your-password"); err != nil {
