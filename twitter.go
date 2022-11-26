@@ -56,11 +56,6 @@ func twitterCronWorker(ctx context.Context) error {
 	}
 	homeTweets, resp, err := client.Timelines.HomeTimeline(homeTimelineParams)
 	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
-		i, err := strconv.ParseInt(resp.Header.Get("X-Rate-Limit-Reset"), 10, 64)
-		if err != nil {
-			return err
-		}
-		tm := time.Unix(i, 0)
 		return fmt.Errorf("out of Rate Limit")
 	}
 
