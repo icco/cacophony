@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/flagutil"
+	//lint:ignore SA1019 deprecated and I don't care
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/icco/cacophony/models"
