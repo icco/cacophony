@@ -96,7 +96,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	twitterFlags.Parse(os.Args[1:])
 	flagutil.SetFlagsFromEnv(twitterFlags, "TWITTER")
 
-	mastoFlags := flag.NewFlagset("masto-auth", flag.ExitOnError)
+	mastoFlags := flag.NewFlagSet("masto-auth", flag.ExitOnError)
 	server := mastoFlags.String("server", "https://merveilles.town", "Mastodon server")
 	clientID := mastoFlags.String("client-id", "", "Mastodon Client ID")
 	clientSecret := mastoFlags.String("client-secret", "", "Mastodon Client Secret")
