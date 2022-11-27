@@ -11,7 +11,6 @@ import (
 	"github.com/icco/cacophony/models"
 	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
-	"google.golang.org/appengine/log"
 )
 
 func Twitter(ctx context.Context, consumerKey, consumerSecret, accessToken, accessSecret string) error {
