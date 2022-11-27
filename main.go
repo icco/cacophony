@@ -100,8 +100,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 	server := mastoFlags.String("server", "https://merveilles.town", "Mastodon server")
 	clientID := mastoFlags.String("client-id", "", "Mastodon Client ID")
 	clientSecret := mastoFlags.String("client-secret", "", "Mastodon Client Secret")
-	userPassword := mastoFlags.String("user-password", "", "Mastodon User Password")
-	userEmail := mastoFlags.String("user-email", "nat@natwelch.com", "Mastodon User Email")
+	mastoAccessToken := twitterFlags.String("access-token", "", "Mastodon Access Token")
 	mastoFlags.Parse(os.Args[1:])
 	flagutil.SetFlagsFromEnv(mastoFlags, "MASTODON")
 
@@ -113,7 +112,7 @@ func cronHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := workers.Mastodon(ctx, *server, *clientID, *clientSecret, *userEmail, *userPassword); err != nil {
+	if err := workers.Mastodon(ctx, *server, *clientID, *clientSecret, *mastoAccessToken); err != nil {
 		log.Errorw("Error getting toots", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
