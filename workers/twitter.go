@@ -11,9 +11,11 @@ import (
 	"github.com/icco/cacophony/models"
 	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
+	"github.com/icco/gutil/logging"
 )
 
 func Twitter(ctx context.Context, consumerKey, consumerSecret, accessToken, accessSecret string) error {
+	log := logging.FromContext(ctx)
 	if consumerKey == "" || consumerSecret == "" || accessToken == "" || accessSecret == "" {
 		return fmt.Errorf("consumer key/secret and Access token/secret required")
 	}
@@ -35,7 +37,7 @@ func Twitter(ctx context.Context, consumerKey, consumerSecret, accessToken, acce
 	if err != nil {
 		return err
 	}
-	log.Debugf("User: %+v", user.ScreenName)
+	log.Debugw("found user", "user", user.ScreenName)
 
 	// Home Timeline
 	homeTimelineParams := &twitter.HomeTimelineParams{
