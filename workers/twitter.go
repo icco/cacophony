@@ -67,8 +67,7 @@ func Twitter(ctx context.Context, consumerKey, consumerSecret, accessToken, acce
 		}
 
 		for _, u := range t.Entities.Urls {
-			err = models.SaveURL(ctx, u.ExpandedURL, t.IDStr)
-			if err != nil {
+			if err := models.SaveURL(ctx, u.ExpandedURL, t.IDStr, ""); err != nil {
 				return fmt.Errorf("error saving url: %w", err)
 			}
 		}

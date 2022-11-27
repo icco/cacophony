@@ -11,10 +11,11 @@ import (
 
 // SavedURL stores a single url seen in a tweet.
 type SavedURL struct {
-	Link       string
-	TweetIDs   []string
-	CreatedAt  time.Time
-	ModifiedAt time.Time
+	Link         string
+	TweetIDs     []string
+	MastodonURLs []string
+	CreatedAt    time.Time
+	ModifiedAt   time.Time
 }
 
 // SomeSavedURLs returns a subset of most recently seen urls.
@@ -67,7 +68,7 @@ func AllSavedURLs(ctx context.Context) ([]*SavedURL, error) {
 }
 
 // SaveURL does an upsert on a URL.
-func SaveURL(ctx context.Context, link string, tweetID string) error {
+func SaveURL(ctx context.Context, link, tweetID, mastoURL string) error {
 	query := `
   INSERT into saved_urls (link, tweet_ids, created_at, modified_at)
   VALUES ($1, ARRAY [$2], transaction_timestamp(), transaction_timestamp())
