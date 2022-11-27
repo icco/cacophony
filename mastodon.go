@@ -18,6 +18,10 @@ func mastodonCronWorker(ctx context.Context) error {
 	flags.Parse(os.Args[1:])
 	flagutil.SetFlagsFromEnv(flags, "MASTODON")
 
+	if *server == "" || *clientID == "" || *clientSecret == "" {
+		return fmt.Errorf("server, client id and client secret required")
+	}
+
 	c := mastodon.NewClient(&mastodon.Config{
 		Server:       *server,
 		ClientID:     *clientID,
