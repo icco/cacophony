@@ -7,12 +7,12 @@ import (
 	"github.com/mattn/go-mastodon"
 )
 
-func Mastodon(ctx context.Context, server, clientID, clientSecret, userEmail, userPassword string) error {
+func Mastodon(ctx context.Context, server, clientID, clientSecret, accessToken string) error {
 	if server == "" || clientID == "" || clientSecret == "" {
 		return fmt.Errorf("server, client id and client secret required")
 	}
 
-	if userPassword == "" || userEmail == "" {
+	if accessToken == "" {
 		return fmt.Errorf("user password and email cannot be empty string")
 	}
 
@@ -22,7 +22,7 @@ func Mastodon(ctx context.Context, server, clientID, clientSecret, userEmail, us
 		ClientSecret: clientSecret,
 	})
 
-	if err := c.Authenticate(ctx, userEmail, userPassword); err != nil {
+	if err := c.AuthenticateToken(ctx, accessToken, "urn:ietf:wg:oauth:2.0:oob"); err != nil {
 		return err
 	}
 
