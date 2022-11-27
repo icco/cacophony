@@ -6,7 +6,7 @@ import (
 )
 
 func TestMastodon(t *testing.T) {
-	if err := Mastodon(context.Background()); err != nil {
+	if err := Mastodon(context.Background(), "", "", "", "", ""); err != nil {
 		t.Errorf("Mastdon() was not nil: %+v", err)
 	}
 }
