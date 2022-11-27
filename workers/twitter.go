@@ -1,35 +1,26 @@
-package main
+package workers
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"os"
 
-	"github.com/coreos/pkg/flagutil"
 	//lint:ignore SA1019 deprecated and I don't care
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/icco/cacophony/models"
 	"github.com/icco/cron/shared"
 	"github.com/icco/cron/tweets"
+	"google.golang.org/appengine/log"
 )
 
-func twitterCronWorker(ctx context.Context) error {
-	flags := flag.NewFlagSet("user-auth", flag.ExitOnError)
-	consumerKey := flags.String("consumer-key", "", "Twitter Consumer Key")
-	consumerSecret := flags.String("consumer-secret", "", "Twitter Consumer Secret")
-	accessToken := flags.String("access-token", "", "Twitter Access Token")
-	accessSecret := flags.String("access-secret", "", "Twitter Access Secret")
-	flags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(flags, "TWITTER")
-
-	if *consumerKey == "" || *consumerSecret == "" || *accessToken == "" || *accessSecret == "" {
+func Twitter(ctx context.Context, consumerKey, consumerSecret, accessToken, accessSecret string) error {
+	if consumerKey == "" || consumerSecret == "" || accessToken == "" || accessSecret == "" {
 		return fmt.Errorf("consumer key/secret and Access token/secret required")
 	}
 
-	config := oauth1.NewConfig(*consumerKey, *consumerSecret)
-	token := oauth1.NewToken(*accessToken, *accessSecret)
+	config := oauth1.NewConfig(consumerKey, consumerSecret)
+	token := oauth1.NewToken(accessToken, accessSecret)
 	// OAuth1 http.Client will automatically authorize Requests
 	httpClient := config.Client(ctx, token)
 
