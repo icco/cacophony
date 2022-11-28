@@ -23,7 +23,22 @@ var (
 	service = "cacophony"
 	project = "icco-cloud"
 	log     = logging.Must(logging.NewLogger(service))
+
+	flgs                  = flag.NewFlagSet("default", flag.ExitOnError)
+	twitterConsumerKey    = flgs.String("twitter-consumer-key", "", "Twitter Consumer Key")
+	twitterConsumerSecret = flgs.String("twitter-consumer-secret", "", "Twitter Consumer Secret")
+	twitterAccessToken    = flgs.String("twitter-access-token", "", "Twitter Access Token")
+	twitterAccessSecret   = flgs.String("twitter-access-secret", "", "Twitter Access Secret")
+	mastoServer           = flgs.String("mastodon-server", "https://merveilles.town", "Mastodon server")
+	mastoClientID         = flgs.String("mastodon-client-id", "", "Mastodon Client ID")
+	mastoClientSecret     = flgs.String("mastodon-client-secret", "", "Mastodon Client Secret")
+	mastoAccessToken      = flgs.String("mastodon-access-token", "", "Mastodon Access Token")
 )
+
+func init() {
+	flgs.Parse(os.Args[1:])
+	flagutil.SetFlagsFromEnv(flgs, "")
+}
 
 func main() {
 	port := "8080"
@@ -88,31 +103,15 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func cronHandler(w http.ResponseWriter, r *http.Request) {
-	twitterFlags := flag.NewFlagSet("twitter-auth", flag.ExitOnError)
-	consumerKey := twitterFlags.String("consumer-key", "", "Twitter Consumer Key")
-	consumerSecret := twitterFlags.String("consumer-secret", "", "Twitter Consumer Secret")
-	accessToken := twitterFlags.String("access-token", "", "Twitter Access Token")
-	accessSecret := twitterFlags.String("access-secret", "", "Twitter Access Secret")
-	twitterFlags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(twitterFlags, "TWITTER")
-
-	mastoFlags := flag.NewFlagSet("masto-auth", flag.ExitOnError)
-	server := mastoFlags.String("server", "https://merveilles.town", "Mastodon server")
-	clientID := mastoFlags.String("client-id", "", "Mastodon Client ID")
-	clientSecret := mastoFlags.String("client-secret", "", "Mastodon Client Secret")
-	mastoAccessToken := twitterFlags.String("access-token", "", "Mastodon Access Token")
-	mastoFlags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(mastoFlags, "MASTODON")
-
 	ctx := r.Context()
 
-	if err := workers.Twitter(ctx, *consumerKey, *consumerSecret, *accessToken, *accessSecret); err != nil {
+	if err := workers.Twitter(ctx, *twitterConsumerKey, *twitterConsumerSecret, *twitterAccessToken, *twitterAccessSecret); err != nil {
 		log.Errorw("Error getting tweets", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	if err := workers.Mastodon(ctx, *server, *clientID, *clientSecret, *mastoAccessToken); err != nil {
+	if err := workers.Mastodon(ctx, *mastoServer, *mastoClientID, *mastoClientSecret, *mastoAccessToken); err != nil {
 		log.Errorw("Error getting toots", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
