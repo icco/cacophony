@@ -33,6 +33,8 @@ var (
 	mastoClientID         = flgs.String("mastodon-client-id", "", "Mastodon Client ID")
 	mastoClientSecret     = flgs.String("mastodon-client-secret", "", "Mastodon Client Secret")
 	mastoAccessToken      = flgs.String("mastodon-access-token", "", "Mastodon Access Token")
+	port                  = flgs.Int("port", 8080, "Server local port")
+	dbURL                 = flgs.String("database-url", "", "Postgres database url")
 )
 
 func init() {
@@ -41,14 +43,9 @@ func init() {
 }
 
 func main() {
-	port := "8080"
-	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
-		port = fromEnv
-	}
-	log.Infow("Starting up", "host", fmt.Sprintf("http://localhost:%s", port))
+	log.Infow("Starting up", "host", fmt.Sprintf("http://localhost:%d", *port))
 
-	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == "" {
+	if *dbURL == "" {
 		log.Fatal("DATABASE_URL is empty!")
 	}
 
@@ -57,7 +54,7 @@ func main() {
 		log.Errorw("could not init opentelemetry", zap.Error(err))
 	}
 
-	models.InitDB(dbURL)
+	models.InitDB(*dbURL)
 
 	r := chi.NewRouter()
 	r.Use(otel.Middleware)
@@ -73,7 +70,7 @@ func main() {
 		}
 	})
 
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), r))
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
