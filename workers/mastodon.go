@@ -7,6 +7,7 @@ import (
 	"github.com/icco/cacophony/models"
 	"github.com/icco/gutil/logging"
 	"github.com/mattn/go-mastodon"
+	"mvdan.cc/xurls/v2"
 )
 
 func Mastodon(ctx context.Context, server, clientID, clientSecret, accessToken string) error {
@@ -33,27 +34,31 @@ func Mastodon(ctx context.Context, server, clientID, clientSecret, accessToken s
 	var statuses []*mastodon.Status
 	var pg mastodon.Pagination
 	limit := 1000
-	for {
+	for len(statuses) < limit && pg.MaxID != "" {
 		timeline, err := c.GetTimelinePublic(ctx, false, &pg)
 		if err != nil {
 			return err
 		}
 		statuses = append(statuses, timeline...)
 		log.Debugw("got statuses", "count", len(statuses), "pagination", pg)
-		if pg.MaxID == "" {
-			break
-		}
-
-		if len(statuses) >= limit {
-			break
-		}
 	}
 
 	for k, v := range statuses {
 		log.Debugw("found toot", "count", k, "toot", v)
 
-		if err := models.SaveURL(ctx, "uri", "", v.URL); err != nil {
-			return fmt.Errorf("error saving url: %w", err)
+		var urls []string
+		if v.Card != nil && v.Card.URL != "" {
+			urls = append(urls, v.Card.URL)
+		}
+
+		rxStrict := xurls.Strict()
+		contentUrls := rxStrict.FindAllString(v.Content, -1)
+		urls = append(urls, contentUrls...)
+
+		for _, url := range urls {
+			if err := models.SaveMastodonURL(ctx, url, v.URL); err != nil {
+				return fmt.Errorf("error saving url: %w", err)
+			}
 		}
 	}
 
