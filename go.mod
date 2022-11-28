@@ -13,6 +13,7 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/mattn/go-mastodon v0.0.6
 	go.uber.org/zap v1.23.0
+	mvdan.cc/xurls/v2 v2.4.0
 )
 
 require (
