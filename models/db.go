@@ -33,6 +33,11 @@ var (
 			Description: "Add unique index to link",
 			Script:      "CREATE UNIQUE INDEX link_idx ON saved_urls(link);",
 		},
+		{
+			Version:     3,
+			Description: "Add mastodon_urls to saved_urls",
+			Script:      "ALTER TABLE saved_urls ADD COLUMN mastodon_urls text[];",
+		},
 	}
 )
 

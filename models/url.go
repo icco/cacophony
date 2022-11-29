@@ -11,10 +11,11 @@ import (
 
 // SavedURL stores a single url seen in a tweet.
 type SavedURL struct {
-	Link       string
-	TweetIDs   []string
-	CreatedAt  time.Time
-	ModifiedAt time.Time
+	Link         string
+	TweetIDs     []string
+	MastodonURLs []string
+	CreatedAt    time.Time
+	ModifiedAt   time.Time
 }
 
 // SomeSavedURLs returns a subset of most recently seen urls.
@@ -66,8 +67,8 @@ func AllSavedURLs(ctx context.Context) ([]*SavedURL, error) {
 	return urls, nil
 }
 
-// SaveURL does an upsert on a URL.
-func SaveURL(ctx context.Context, link string, tweetID string) error {
+// SaveTwitterURL does an upsert on a URL.
+func SaveTwitterURL(ctx context.Context, link, tweetID string) error {
 	query := `
   INSERT into saved_urls (link, tweet_ids, created_at, modified_at)
   VALUES ($1, ARRAY [$2], transaction_timestamp(), transaction_timestamp())
@@ -75,7 +76,23 @@ func SaveURL(ctx context.Context, link string, tweetID string) error {
   SET tweet_ids = saved_urls.tweet_ids || $2, modified_at = transaction_timestamp()
   WHERE NOT EXCLUDED.tweet_ids <@ saved_urls.tweet_ids;`
 	if _, err := db.ExecContext(ctx, query, link, tweetID); err != nil {
-		log.Errorw("insert query errored", "query", query, "link", link, "tweet", tweetID, zap.Error(err))
+		log.Errorw("twitter insert query errored", "query", query, "link", link, "tweet", tweetID, zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+// SaveMastodonURL does an upsert on a URL.
+func SaveMastodonURL(ctx context.Context, link, mastoUrl string) error {
+	query := `
+  INSERT into saved_urls (link, mastodon_urls, created_at, modified_at)
+  VALUES ($1, ARRAY [$2], transaction_timestamp(), transaction_timestamp())
+  ON CONFLICT(link) DO UPDATE
+  SET mastodon_urls = saved_urls.mastodon_urls || $2, modified_at = transaction_timestamp()
+  WHERE NOT EXCLUDED.mastodon_urls <@ saved_urls.mastodon_urls;`
+	if _, err := db.ExecContext(ctx, query, link, mastoUrl); err != nil {
+		log.Errorw("mastodon insert query errored", "query", query, "link", link, "toot", mastoUrl, zap.Error(err))
 		return err
 	}
 
