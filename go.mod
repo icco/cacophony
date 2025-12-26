@@ -7,7 +7,7 @@ require (
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f
 	github.com/dghubble/go-twitter v0.0.0-20211115160449-93a8679adecb
 	github.com/dghubble/oauth1 v0.7.1
-	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/icco/cron v0.0.0-20220124021308-d0c8dab398a9
 	github.com/icco/gutil v0.0.0-20220221170217-9aa326c389ec
 	github.com/lib/pq v1.10.4
