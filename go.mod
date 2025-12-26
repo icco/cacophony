@@ -44,7 +44,7 @@ require (
 	github.com/paulmach/orb v0.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.3.1 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.15 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.29.0 // indirect
 	go.opentelemetry.io/otel v1.4.1 // indirect
